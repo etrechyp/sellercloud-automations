@@ -39,10 +39,7 @@ onCompareOrdersToHold = async (orders) => {
             return o.ShippingAddress.StreetLine1 === order.ShippingAddress.StreetLine1 && o.ShippingAddress.StreetLine2 === order.ShippingAddress.StreetLine2 && o.ShippingAddress.City === order.ShippingAddress.City && o.ShippingAddress.StateName === order.ShippingAddress.StateName && o.ShippingAddress.PostalCode === order.ShippingAddress.PostalCode && i !== index && o.Status !== 200;
         });
         if (found) {
-            if (found.TimeOfOrder > order.TimeOfOrder) {
-                toHold.unshift(found.orderID);
-            } else {
-            }
+            toHold.push(order.orderID);
         }
     });
     if (toHold.length > 0) {

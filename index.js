@@ -13,8 +13,8 @@ start = async () => {
     console.log('Starting bot...')
     try {
         const token = await onGetAuthToken();
-
         const channelId = [1, 4, 50];
+
         for(let i = 0; i < channelId.length; i++) {
             const orders = await onGetlastOrders(token, channelId[i], 1);
 
@@ -27,11 +27,10 @@ start = async () => {
             }
 
             console.log(`${orders.index} orders found. in channel ${channelId[i]}`);
-
+            console.log(orders.Items.map((order) => order.orderID));
             await onCompareOrdersToHold(orders.Items).then((toHold) => {
                 if (toHold) {
                     console.log(`Found ${toHold.length} orders to hold.`);
-                    console.log(toHold);
                     onPutOrdersOnHold(token, toHold);
                 } else {
                     console.log('No orders to hold.');

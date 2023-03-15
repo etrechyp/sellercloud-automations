@@ -1,4 +1,5 @@
 const axios = require('axios');
+const path = require('path');
 
 onGetlastOrders = async (access_token, channelId, pageNumber) => {
     return new Promise((resolve, reject) => {
@@ -17,7 +18,8 @@ onGetlastOrders = async (access_token, channelId, pageNumber) => {
                             'LastName': order.LastName,
                             'Email': order.Email,
                             'TimeOfOrder': order.TimeOfOrder,
-                            'ShippingAddress': order.ShippingAddress
+                            'ShippingAddress': order.ShippingAddress,
+                            'Status': order.StatusCode,
                         }
                     })
                 }
@@ -31,13 +33,16 @@ onGetlastOrders = async (access_token, channelId, pageNumber) => {
 
 onCompareOrdersToHold = async (orders) => {
     console.log('Comparing orders to hold...')
-    const toHold = [];
+    let toHold = [];
     orders.forEach((order, index) => {
-        const found = orders.find((o, i) => {
-            return o.ShippingAddress === order.ShippingAddress && i !== index;
+        let found = orders.find((o, i) => {
+            return o.ShippingAddress.StreetLine1 === order.ShippingAddress.StreetLine1 && o.ShippingAddress.StreetLine2 === order.ShippingAddress.StreetLine2 && o.ShippingAddress.City === order.ShippingAddress.City && o.ShippingAddress.StateName === order.ShippingAddress.StateName && o.ShippingAddress.PostalCode === order.ShippingAddress.PostalCode && i !== index && o.Status !== 200;
         });
         if (found) {
-            toHold.push(order.orderID);
+            if (found.TimeOfOrder > order.TimeOfOrder) {
+                toHold.unshift(found.orderID);
+            } else {
+            }
         }
     });
     if (toHold.length > 0) {
@@ -46,36 +51,25 @@ onCompareOrdersToHold = async (orders) => {
     return false;
 }
 
-onPutOrdersOnHold = async (access_token, orders) => {
+onPutOrdersOnHold = async (access_token, ordersToHold) => {
     console.log('Putting orders on hold...')
-    console.log(orders.map((order) => {
-        return order.orderID;
-    }));
-
+    console.log(ordersToHold);
     let body = {
-        'model': {
-            'Orders': orders.map((order) => {
-                return order.orderID;
-            })
-        },
+        'Orders': ordersToHold,
         'Status': 200
     }
 
-    console.log(body);
-
-
-    // axios.put('https://cf.api.sellercloud.com/rest/api/Orders/hold', body, {
-    //     headers: {
-    //         'Authorization': 'Bearer ' + access_token
-    //     }
-    // })
-    // .then((response) => {
-    //     console.log(response.data);
-    // })
-    // .catch((error) => {
-    //     console.error(error.message);
-    // });
-
+    axios.put('https://cf.api.sellercloud.com/rest/api/Orders/StatusCode', body, {
+        headers: {
+            'Authorization': 'Bearer ' + access_token
+        }
+    })
+    .then((response) => {
+        console.log(`Orders put on hold: ${response.data}`);
+    })
+    .catch((error) => {
+        console.error(error.message);
+    });
 
 }
 

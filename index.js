@@ -11,6 +11,7 @@ const {
 start = async () => {
     console.clear();
     console.log('Starting bot...')
+    console.log(`init: ${new Date()}`)        
     try {
         const token = await onGetAuthToken();
         const channelId = [1, 4, 50];
@@ -36,7 +37,8 @@ start = async () => {
                     console.log('No orders to hold.');
                 }
             });
-        }        
+        }
+        console.log(`last run: ${new Date()}`)        
         console.log('Bot finished, awaiting next scheduled run...');
     } catch (error) {
         console.error(error.message);
@@ -46,7 +48,7 @@ start = async () => {
 
 start();
 
-cron.schedule('0 9 * * *', () => {
+cron.schedule('0 3 * * *', () => {
     console.log('Running scheduled cron job...')
     start();
 });

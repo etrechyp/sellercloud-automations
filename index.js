@@ -1,5 +1,6 @@
 require('dotenv').config();
 const cron = require('node-cron');
+const sendMail = require('./utils/mailer');
 const onGetAuthToken = require('./controllers/login');
 const { 
     onCompareOrdersToHold,
@@ -15,6 +16,7 @@ start = async () => {
     try {
         const token = await onGetAuthToken();
         const channelId = [1, 4, 50];
+        let OrderToEmail = [];
 
         for(let i = 0; i < channelId.length; i++) {
             const orders = await onGetlastOrders(token, channelId[i], 1);
@@ -32,12 +34,16 @@ start = async () => {
             await onCompareOrdersToHold(orders.Items).then((toHold) => {
                 if (toHold) {
                     console.log(`Found ${toHold.length} orders to hold.`);
-                    onPutOrdersOnHold(token, toHold);
+                    OrderToEmail.push(toHold);
+                    // onPutOrdersOnHold(token, toHold);
                 } else {
                     console.log('No orders to hold.');
                 }
             });
         }
+        let flattened = OrderToEmail.flat();
+        await console.log(flattened);
+        await sendMail(flattened);
         console.log(`last run: ${new Date()}`)        
         console.log('Bot finished, awaiting next scheduled run...');
     } catch (error) {

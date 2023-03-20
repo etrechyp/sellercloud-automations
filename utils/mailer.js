@@ -6,8 +6,8 @@ async function sendMail(OrderIds) {
         port: 587,
         secure: false,
         auth: {
-            user: 'sotodeals-automations@outlook.com',
-            pass: '!Bp^sfN7g$dCV7kU'
+            user: process.env.MAILER_USERNAME,
+            pass: process.env.MAILER_PASSWORD
         },
     });
 

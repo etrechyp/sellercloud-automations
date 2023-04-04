@@ -9,16 +9,24 @@ onGetlastOrders = async (access_token, channelId, pageNumber) => {
         })
         .then((response) => {
             resolve({
+                response: response.data,
                 index: response.data.TotalResults,
                 Items: response.data.Items.map((order) => {
                         return {
-                            'orderID': order.ID,
+                            'CustomerID': order.CustomerID,
+                            'OrderID': order.ID,
                             'FirstName': order.FirstName,
                             'LastName': order.LastName,
-                            'Email': order.Email,
                             'TimeOfOrder': order.TimeOfOrder,
                             'ShippingAddress': order.ShippingAddress,
+                            'Items': order.Items.map((item) => {
+                                return {
+                                    'ItemID': item.ProductID,
+                                    'Qty': item.Qty
+                                }
+                            }),
                             'Status': order.StatusCode,
+                            'Channel': channelId
                         }
                     })
                 }
@@ -28,28 +36,52 @@ onGetlastOrders = async (access_token, channelId, pageNumber) => {
             reject(error.message);
         });
     });
-}
+} 
 
 onCompareOrdersToHold = async (orders) => {
     console.log('Comparing orders to hold...')
     let toHold = [];
     orders.forEach((order, index) => {
         let found = orders.find((o, i) => {
-            return o.ShippingAddress.StreetLine1 === order.ShippingAddress.StreetLine1 && o.ShippingAddress.StreetLine2 === order.ShippingAddress.StreetLine2 && o.ShippingAddress.City === order.ShippingAddress.City && o.ShippingAddress.StateName === order.ShippingAddress.StateName && o.ShippingAddress.PostalCode === order.ShippingAddress.PostalCode && i !== index && o.Status !== 200;
+            return  o.ShippingAddress.StreetLine1 === order.ShippingAddress.StreetLine1 &&
+                    o.ShippingAddress.StreetLine2 === order.ShippingAddress.StreetLine2 &&
+                    o.ShippingAddress.City === order.ShippingAddress.City &&
+                    o.ShippingAddress.StateName === order.ShippingAddress.StateName &&
+                    o.ShippingAddress.PostalCode === order.ShippingAddress.PostalCode &&
+                    i !== index &&
+                    o.Status !== 200;
         });
         if (found) {
-            toHold.push(order.orderID);
+            let items = {};
+            for(let i = 0; i < order.Items.length; i++) {
+                if(items[order.Items[i].ItemID]) {
+                    items[order.Items[i].ItemID] += order.Items[i].Qty;
+                } else {
+                    items[order.Items[i].ItemID] = order.Items[i].Qty;
+                }
+            }
+            toHold.push({
+                CustomerId: order.CustomerID,
+                firstName: order.FirstName,
+                lastName: order.LastName,
+                OrderId: order.OrderID,
+                ShippingAddress: order.ShippingAddress,
+                Items: items,
+                Status: order.Status,
+                Channel: order.Channel
+            });
         }
     });
+
     if (toHold.length > 0) {
-        return toHold;
+        return JSON.stringify(toHold);
     }
     return false;
 }
 
 onPutOrdersOnHold = async (access_token, ordersToHold) => {
     console.log('Putting orders on hold...')
-    console.log(ordersToHold);
+    // console.log(ordersToHold);
     let body = {
         'Orders': ordersToHold,
         'Status': 200
@@ -74,3 +106,14 @@ module.exports = {
     onCompareOrdersToHold,
     onPutOrdersOnHold
 }
+
+// OrderId, first Name, lastName, Email, toBeCancelled, cancelationRequest
+// Bht12345
+//bht.remoto@gmail.com
+
+//enrique
+//alex
+//miguel
+//mary
+
+//11234567899

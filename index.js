@@ -5,7 +5,7 @@ const onGetAuthToken = require('./controllers/login');
 const { 
     onCompareOrdersToHold,
     onGetlastOrders,
-    onPutOrdersOnHold
+    // onPutOrdersOnHold
 } = require('./controllers/orders');
 
 
@@ -16,7 +16,6 @@ start = async () => {
     try {
         const token = await onGetAuthToken();
         const channelId = [1, 4, 50];
-        // const channelId = [50];
         let OrderToEmail = [];
 
         for(let i = 0; i < channelId.length; i++) {
@@ -53,7 +52,7 @@ start = async () => {
     }
 }
 
-// start();
+start();
 console.log('Scheduled cron job to 07:30am...')
 cron.schedule('30 7 * * *', () => {
     console.log('Running scheduled cron job...')

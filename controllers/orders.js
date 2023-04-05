@@ -105,14 +105,3 @@ module.exports = {
     onCompareOrdersToHold,
     onPutOrdersOnHold
 }
-
-// OrderId, first Name, lastName, Email, toBeCancelled, cancelationRequest
-// Bht12345
-//bht.remoto@gmail.com
-
-//enrique
-//alex
-//miguel
-//mary
-
-//11234567899

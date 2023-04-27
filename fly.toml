@@ -1,0 +1,35 @@
+app = "sellercloud-automations"
+
+[experimental]
+[[experimental.scheduler]]
+name = "run-daily"
+command = "flyctl scale count 1 && sleep 1h && flyctl scale count 0"
+schedule = "0 7 * * * America/New_York"
+
+[[services]]
+internal_port = 3000
+protocol = "tcp"
+
+[services.concurrency]
+hard_limit = 1
+soft_limit = 1
+
+[[services.ports]]
+port = "80"
+protocol = "tcp"
+handler = "app"
+
+[docker]
+image = "node:14-alpine"
+
+[build]
+command = "npm install --production"
+
+[env]
+PORT = "3000"
+
+[deploy]
+strategy = "rolling"
+
+[experimental]
+post_deploy = "echo 'La aplicación se ha desplegado correctamente.'"

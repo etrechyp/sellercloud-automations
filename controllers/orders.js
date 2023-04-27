@@ -81,7 +81,7 @@ onCompareOrdersToHold = async (orders) => {
 
 onPutOrdersOnHold = async (access_token, ordersToHold) => {
     console.log('Putting orders on hold...')
-    // console.log(ordersToHold);
+    console.log(ordersToHold);
     let body = {
         'Orders': ordersToHold,
         'Status': 200

@@ -5,7 +5,7 @@ const onGetAuthToken = require('./controllers/login');
 const { 
     onCompareOrdersToHold,
     onGetlastOrders,
-    onPutOrdersOnHold
+    // onPutOrdersOnHold
 } = require('./controllers/orders');
 
 

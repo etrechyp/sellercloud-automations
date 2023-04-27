@@ -30,9 +30,10 @@ start = async () => {
             }
 
             console.log(`${orders.index} orders found. in channel ${channelId[i]}`);
-            console.log(orders.Items.map((order) => order.orderID));
+            console.log(orders.Items.map((order) => order.OrderID));
             await onCompareOrdersToHold(orders.Items).then((toHold) => {
                 if (toHold) {
+                    toHold = JSON.parse(toHold);
                     console.log(`Found ${toHold.length} orders to hold.`);
                     OrderToEmail.push(toHold);
                     // onPutOrdersOnHold(token, toHold);
@@ -42,7 +43,6 @@ start = async () => {
             });
         }
         let flattened = OrderToEmail.flat();
-        await console.log(flattened);
         await sendMail(flattened);
         console.log(`last run: ${new Date()}`)        
         console.log('Bot finished, awaiting next scheduled run...');
@@ -53,8 +53,8 @@ start = async () => {
 }
 
 start();
-
-cron.schedule('0 3 * * *', () => {
+console.log('Scheduled cron job to 07:30am...')
+cron.schedule('30 7 * * *', () => {
     console.log('Running scheduled cron job...')
     start();
 });

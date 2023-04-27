@@ -1,48 +1,74 @@
 const nodemailer = require('nodemailer');
 
 async function sendMail(OrderIds) {
-    let transporter = nodemailer.createTransport({
-        host: 'smtp.office365.com',
-        port: 587,
-        secure: false,
+
+    const transporter = nodemailer.createTransport({
+        host: process.env.MAILER_HOST,  
+        secure: true,
+        secureConnection: false,
+        tls: {
+            ciphers:'SSLv3'
+        },
+        requireTLS:true,
+        port: 465,
+        debug: true,
         auth: {
             user: process.env.MAILER_USERNAME,
             pass: process.env.MAILER_PASSWORD
-        },
+        }
     });
 
-    let info = await transporter.sendMail({
-        from: '"Report-BOT 🤖"<sotodeals-automations@outlook.com>',
-        to: "warehouse@sodeals.com; marcos@sotodeals.com; developers@sotodeals.com",
-        subject: "List on repeated orders",
-        html: `<h3>List on repeated orders</h3>
-        <ul>${OrderIds.map((order) => `<li style="margin:5px;">${order}</li>`).join('')}</ul>`
-    });
-
-
-    //TODO: debug template
-    // let transporter = nodemailer.createTransport({
-    //     host: 'smtp.ethereal.email',
-    //     port: 587,
-    //     secure: false,
-    //     auth: {
-    //         user: 'kaitlin.ward@ethereal.email',
-    //         pass: 'KZceFhA6QXBRdKdB4k'
-    //     },
-    // });
-
-    // let info = await transporter.sendMail({
-    //     from: '"Report-BOT 🤖"<kaitlin.ward@ethereal.email>"',
-    //     to: "e.trechy.p@gmail.com   ",
-    //     subject: "Orders on hold SC",
-    //     html: `<h3>list of OrderID on hold</h3>
-    //     <ul>${OrderIds.map((order) => `<li style="margin:5px;">${order}</li>`).join('')}</ul>`
-    // });
-
-    console.log("Message sent: %s", info.messageId);
+    if(OrderIds.length === 0) {
+        let info = await transporter.sendMail({
+        from: `"SD-BOT 🤖"<${process.env.MAILER_USERNAME}>`,
+        to: process.env.MAIL_TO,
+        subject: "OrderIds repetidas en SC",
+        html: `
+            <p>No se han encontrado OrderIds con direcciones de envío similares.</p>
+            <p>Saludos</p>
+        `
+        });
+        console.log("Message sent: %s", info.messageId);
+    } else {
+        let info = await transporter.sendMail({
+            from: `"SD-BOT 🤖"<${process.env.MAILER_USERNAME}>`,
+            to: process.env.MAIL_TO,
+        subject: "OrderIds repetidas en SC",
+        html: `
+        <p>Se han encontrado ${OrderIds.length} OrderIds con direcciones de envío similares, favor revisar:</p>
+        <table style="border-collapse: collapse;">
+            <thead>
+            <tr>
+                <th style="border: 1px solid black; padding: 7px;">Order#</th>
+                <th style="border: 1px solid black; padding: 7px;">First Name</th>
+                <th style="border: 1px solid black; padding: 7px;">Last Name</th>
+                <th style="border: 1px solid black; padding: 7px;">City</th>
+                <th style="border: 1px solid black; padding: 7px;">State</th>
+                <th style="border: 1px solid black; padding: 7px;">Zip Code</th>
+                <th style="border: 1px solid black; padding: 7px;">Items</th>
+            </tr>
+            </thead>
+            <tbody>
+            ${OrderIds.map(order => `
+                <tr>
+                <td style="border: 1px solid black; padding: 7px;"><a href="https://cf.cwa.sellercloud.com/Orders/Orders_details.aspx?id=${order.OrderId}">${order.OrderId}</a></td>
+                <td style="border: 1px solid black; padding: 7px;">${order.firstName}</td>
+                <td style="border: 1px solid black; padding: 7px;">${order.lastName}</td>
+                <td style="border: 1px solid black; padding: 7px;">${order.ShippingAddress.City}</td>
+                <td style="border: 1px solid black; padding: 7px;">${order.ShippingAddress.StateName}</td>
+                <td style="border: 1px solid black; padding: 7px;">${order.ShippingAddress.PostalCode}</td>
+                <td style="border: 1px solid black; padding: 7px;">${Object.keys(order.Items).map(item => `<a href="https://cf.cwa.sellercloud.com/Inventory/Product_Dashboard.aspx?Id=${item}">${item}</a>(${order.Items[item]})`).join(', ')}</td>
+                </tr>
+            `).join('')}
+            </tbody>
+        </table>
+        <p>En caso de encontrar algún error, favor de contactar a developers@sotodeals.com</p>
+        <p>Saludos</p>
+        
+        `
+        });
+        console.log("Message sent: %s", info.messageId);
+    }
 }
 
 module.exports = sendMail;
-
-
-

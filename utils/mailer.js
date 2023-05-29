@@ -42,6 +42,7 @@ async function sendMail(OrderIds) {
                 <th style="border: 1px solid black; padding: 7px;">Order#</th>
                 <th style="border: 1px solid black; padding: 7px;">First Name</th>
                 <th style="border: 1px solid black; padding: 7px;">Last Name</th>
+                <th style="border: 1px solid black; padding: 7px;">Shipping FullName</th>
                 <th style="border: 1px solid black; padding: 7px;">City</th>
                 <th style="border: 1px solid black; padding: 7px;">State</th>
                 <th style="border: 1px solid black; padding: 7px;">Zip Code</th>
@@ -54,6 +55,7 @@ async function sendMail(OrderIds) {
                 <td style="border: 1px solid black; padding: 7px;"><a href="https://cf.cwa.sellercloud.com/Orders/Orders_details.aspx?id=${order.OrderId}">${order.OrderId}</a></td>
                 <td style="border: 1px solid black; padding: 7px;">${order.firstName}</td>
                 <td style="border: 1px solid black; padding: 7px;">${order.lastName}</td>
+                <td style="border: 1px solid black; padding: 7px;">${order.ShippingAddress.FirstName} ${order.ShippingAddress.LastName}</td>
                 <td style="border: 1px solid black; padding: 7px;">${order.ShippingAddress.City}</td>
                 <td style="border: 1px solid black; padding: 7px;">${order.ShippingAddress.StateName}</td>
                 <td style="border: 1px solid black; padding: 7px;">${order.ShippingAddress.PostalCode}</td>
